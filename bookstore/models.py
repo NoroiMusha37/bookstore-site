@@ -1,9 +1,10 @@
 import uuid
 from decimal import Decimal
 
-from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models import DecimalField, F, Sum
+
+from config import settings
 
 
 class Author(models.Model):
@@ -47,19 +48,12 @@ class Book(models.Model):
         return f"{self.title} ({self.publication_year})"
 
 
-class User(AbstractUser):
-    id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False
-    )
-    phone = models.CharField(max_length=50, blank=True, null=True)
-
-
 class Cart(models.Model):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False
     )
     user = models.OneToOneField(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name="cart",
         on_delete=models.CASCADE
     )
@@ -108,7 +102,7 @@ class Order(models.Model):
         CANCELLED = "cancelled", "Cancelled"
 
     user = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         related_name="orders",
         on_delete=models.SET_NULL,
         null=True,

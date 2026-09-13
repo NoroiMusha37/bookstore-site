@@ -4,7 +4,6 @@ from bookstore.models import (
     Publisher,
     Author,
     Book,
-    User,
     Cart,
     CartItem,
     Order,
@@ -91,12 +90,6 @@ class BookDetailSerializer(serializers.ModelSerializer):
             "popularity_score", "description", "publication_year",
             "pages", "in_stock"
         ]
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "phone"]
 
 
 class CartItemWriteSerializer(serializers.ModelSerializer):

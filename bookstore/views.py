@@ -1,6 +1,7 @@
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -31,7 +32,10 @@ class PublisherDetailAPIView(APIView):
         return get_object_or_404(Publisher, pk=pk)
 
     def get(self, request, pk):
-        publisher = Publisher.objects.prefetch_related("book_set").get(pk=pk)
+        try:
+            publisher = Publisher.objects.prefetch_related("book_set").get(pk=pk)
+        except Publisher.DoesNotExist:
+            raise NotFound("Publisher not found.")
         serializer = PublisherDetailSerializer(publisher)
         return Response(serializer.data)
 
@@ -75,7 +79,10 @@ class AuthorDetailAPIView(APIView):
         return get_object_or_404(Author, pk=pk)
 
     def get(self, request, pk):
-        author = Author.objects.prefetch_related("book_set").get(pk=pk)
+        try:
+            author = Author.objects.prefetch_related("book_set").get(pk=pk)
+        except Author.DoesNotExist:
+            raise NotFound("Author not found.")
         serializer = AuthorDetailSerializer(author)
         return Response(serializer.data)
 
@@ -179,7 +186,7 @@ class BookDetailAPIView(APIView):
         if CartItem.objects.filter(book=book).exists() or OrderItem.objects.filter(book=book).exists():
             return Response(
                 {"error": "Cannot delete a book that is in an active cart or order history."},
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_409_CONFLICT
             )
         book.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

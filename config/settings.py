@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "bookstore",
+    "accounts",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
+    "rest_framework_simplejwt",
 ]
 
 MIDDLEWARE = [
@@ -131,4 +133,10 @@ MAILERS = {
     },
 }
 
-AUTH_USER_MODEL = "bookstore.User"
+AUTH_USER_MODEL = "accounts.User"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
