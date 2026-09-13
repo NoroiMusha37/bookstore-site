@@ -71,6 +71,77 @@ It provides a structured data model and endpoints to handle three core domains:
 
 ---
 
+## Implementation Summary
+
+The backend currently focuses on the catalog management features. The following components have been fully implemented:
+
+* **Models & Database**: 
+  * Defined models for `Author`, `Publisher`, and `Book`, along with foundational models for `User`, `Cart`, `CartItem`, `Order`, and `OrderItem`.
+* **Serializers**: 
+  * Implemented distinct serializers for the catalog and foundational sales models.
+  * Detail serializers for Authors and Publishers include nested data of their associated books.
+  * Serializers for Carts and Orders also implement nested arrays of their respective items.
+* **API Views & Routing**: 
+  * Created list and detail CRUD endpoints for Books, Authors, and Publishers.
+  * Configured URL routing for all active catalog endpoints.
+* **Query Capabilities**:
+  * The books endpoint supports text search (`title`, `author name`), filtering (`publisher`, `genre`), and custom sorting (e.g., `popularity_score`, `price`).
+* **Error Handling & Integrity**: 
+  * Enforced protected foreign-key constraints gracefully: attempting to delete an Author or Publisher linked to a Book returns a `409 Conflict` with a JSON error message. 
+  * Deleting a Book linked to an active cart or order returns a `400 Bad Request`.
+* **CORS & Frontend Integration**: 
+  * Configured `django-cors-headers` to allow a separate frontend repository to successfully fetch data and demonstrate CORS requests.
+* **Testing**: 
+  * Included an updated `postman_collection.json` containing test requests for all implemented catalog endpoints.
+
+---
+
+## 🛠️ Startup Guide
+
+You can run this project using either `uv` (recommended) or standard `pip`.
+
+### Using `uv` (Recommended)
+
+1. **Sync dependencies and create a virtual environment**:
+   ```bash
+   uv sync
+   ```
+2. **Apply migrations**:
+   ```bash
+   uv run python manage.py migrate
+   ```
+3. **Run the development server**:
+   ```bash
+   uv run python manage.py runserver
+   ```
+
+### Using `pip`
+
+1. **Create and activate a virtual environment**:
+   ```bash
+   # Windows
+   python -m venv .venv
+   .venv\Scripts\activate
+   
+   # macOS/Linux
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+2. **Install dependencies**:
+   ```bash
+   pip install .
+   ```
+3. **Apply migrations**:
+   ```bash
+   python manage.py migrate
+   ```
+4. **Run the development server**:
+   ```bash
+   python manage.py runserver
+   ```
+
+---
+
 ## 🗄️ Database Schema
 
 ![Database Schema](er_diagram.png)
