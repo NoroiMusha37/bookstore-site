@@ -8,4 +8,4 @@ class User(AbstractUser):
     id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False
     )
-    phone = models.CharField(max_length=50, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
