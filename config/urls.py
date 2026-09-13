@@ -18,7 +18,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from accounts.views import UserProfileAPIView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("bookstore.urls"))
+    path("", include("bookstore.urls")),
+    path("accounts/", include("accounts.urls")),
+    path("me/", UserProfileAPIView.as_view(), name="user-profile"),
 ]
