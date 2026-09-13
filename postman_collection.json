@@ -304,25 +304,6 @@
 					}
 				}
 			]
-		},
-		{
-			"name": "General",
-			"item": [
-				{
-					"name": "Get About Us Information",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://127.0.0.1:8000/about/",
-							"protocol": "http",
-							"host": ["127", "0", "0", "1"],
-							"port": "8000",
-							"path": ["about", ""]
-						}
-					}
-				}
-			]
 		}
 	]
 }
