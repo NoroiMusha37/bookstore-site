@@ -26,7 +26,15 @@ class PublisherDetailSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "description", "books"]
 
     def get_books(self, obj):
-        return [{"id": book.id, "title": book.title} for book in obj.book_set.all()]
+        return [
+            {
+                "id": book.id, 
+                "title": book.title,
+                "genre": book.genre,
+                "price": book.price,
+                "popularity_score": book.popularity_score
+            } for book in obj.book_set.all()
+        ]
 
 
 class AuthorListSerializer(serializers.ModelSerializer):
@@ -43,7 +51,15 @@ class AuthorDetailSerializer(serializers.ModelSerializer):
         fields = ["id", "name", "bio", "books"]
 
     def get_books(self, obj):
-        return [{"id": book.id, "title": book.title} for book in obj.book_set.all()]
+        return [
+            {
+                "id": book.id, 
+                "title": book.title,
+                "genre": book.genre,
+                "price": book.price,
+                "popularity_score": book.popularity_score
+            } for book in obj.book_set.all()
+        ]
 
 
 class BookListSerializer(serializers.ModelSerializer):
