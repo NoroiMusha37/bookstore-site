@@ -43,6 +43,10 @@
 						"method": "POST",
 						"header": [
 							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
@@ -66,6 +70,10 @@
 						"method": "PATCH",
 						"header": [
 							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
@@ -87,7 +95,12 @@
 					"name": "Delete Publisher",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"url": {
 							"raw": "http://127.0.0.1:8000/publishers/INSERT_UUID_HERE/",
 							"protocol": "http",
@@ -136,6 +149,10 @@
 						"method": "POST",
 						"header": [
 							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
@@ -159,6 +176,10 @@
 						"method": "PATCH",
 						"header": [
 							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
@@ -180,7 +201,12 @@
 					"name": "Delete Author",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"url": {
 							"raw": "http://127.0.0.1:8000/authors/INSERT_UUID_HERE/",
 							"protocol": "http",
@@ -249,6 +275,10 @@
 						"method": "POST",
 						"header": [
 							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
@@ -272,6 +302,10 @@
 						"method": "PATCH",
 						"header": [
 							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
 								"key": "Content-Type",
 								"value": "application/json"
 							}
@@ -293,7 +327,12 @@
 					"name": "Delete Book",
 					"request": {
 						"method": "DELETE",
-						"header": [],
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
 						"url": {
 							"raw": "http://127.0.0.1:8000/books/INSERT_UUID_HERE/",
 							"protocol": "http",
@@ -304,6 +343,161 @@
 					}
 				}
 			]
+		},
+		{
+			"name": "Accounts & Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"test@test.com\",\n    \"password\": \"TestPassword123!\",\n    \"password_check\": \"TestPassword123!\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"phone\": \"+1 555-1234\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/register/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["accounts", "register", ""]
+						}
+					}
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"if(res.access) { pm.collectionVariables.set(\"access_token\", res.access); }",
+									"if(res.refresh) { pm.collectionVariables.set(\"refresh_token\", res.refresh); }"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"TestPassword123!\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/login/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["accounts", "login", ""]
+						}
+					}
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var res = pm.response.json();",
+									"if(res.access) { pm.collectionVariables.set(\"access_token\", res.access); }"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/accounts/login/refresh/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["accounts", "login", "refresh", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "http://127.0.0.1:8000/me/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["me", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newemail@example.com\",\n    \"password\": \"NewStrongPassword123!\",\n    \"first_name\": \"Johnny\",\n    \"last_name\": \"Doe-Smith\",\n    \"phone\": \"+1 555-9999\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/me/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["me", ""]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
 		}
 	]
 }

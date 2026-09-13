@@ -73,26 +73,35 @@ It provides a structured data model and endpoints to handle three core domains:
 
 ## Implementation Summary
 
-The backend currently focuses on the catalog management features. The following components have been fully implemented:
+The backend currently focuses on the catalog management and user authentication features. The following components have been fully implemented:
 
 * **Models & Database**: 
   * Defined models for `Author`, `Publisher`, and `Book`, along with foundational models for `User`, `Cart`, `CartItem`, `Order`, and `OrderItem`.
 * **Serializers**: 
-  * Implemented distinct serializers for the catalog and foundational sales models.
+  * Implemented distinct serializers for the catalog and foundational sales models (`Book`, `Author`, `Publisher`, `User`, `Cart`, `Order`).
   * Detail serializers for Authors and Publishers include nested data of their associated books.
   * Serializers for Carts and Orders also implement nested arrays of their respective items.
+  * Implemented strict serializers for User registration and profile updates with custom validation (e.g., secure passwords, phone length checks, unique emails).
 * **API Views & Routing**: 
   * Created list and detail CRUD endpoints for Books, Authors, and Publishers.
   * Configured URL routing for all active catalog endpoints.
+  * Added JWT-based authentication endpoints (`/accounts/login/`, `/accounts/login/refresh/`).
+  * Added secure user registration (`/accounts/register/`) and a `/me/` endpoint to view and update profiles.
+* **Authentication & Permissions**:
+  * Configured `djangorestframework-simplejwt` for robust, stateless token-based auth.
+  * Catalog endpoints use custom `IsAdminUserOrReadOnly` permissions to allow public viewing but restrict editing to staff.
+  * The profile endpoint is secured via `IsAuthenticated` preventing IDOR attacks.
+* **Logging**:
+  * Implemented structured logging across all views using Python's `logging` module to track successful actions (fetches, creates) and warnings (validation failures, constraint conflicts).
 * **Query Capabilities**:
   * The books endpoint supports text search (`title`, `author name`), filtering (`publisher`, `genre`), and custom sorting (e.g., `popularity_score`, `price`).
 * **Error Handling & Integrity**: 
   * Enforced protected foreign-key constraints gracefully: attempting to delete an Author or Publisher linked to a Book returns a `409 Conflict` with a JSON error message. 
-  * Deleting a Book linked to an active cart or order returns a `400 Bad Request`.
+  * Deleting a Book linked to an active cart or order returns a `409 Conflict`.
 * **CORS & Frontend Integration**: 
   * Configured `django-cors-headers` to allow a separate frontend repository to successfully fetch data and demonstrate CORS requests.
 * **Testing**: 
-  * Included an updated `postman_collection.json` containing test requests for all implemented catalog endpoints.
+  * Included an updated `postman_collection.json` containing test requests for all implemented catalog and account endpoints.
 
 ---
 
