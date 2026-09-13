@@ -1,3 +1,5 @@
+import logging
+
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
@@ -13,6 +15,8 @@ from bookstore.serializers import (
     BookListSerializer, BookDetailSerializer,
 )
 
+logger = logging.getLogger(__name__)
+
 
 class PublisherListAPIView(APIView):
     permission_classes = [IsAdminUserOrReadOnly]
@@ -20,13 +24,23 @@ class PublisherListAPIView(APIView):
     def get(self, request):
         publishers = Publisher.objects.all()
         serializer = PublisherListSerializer(publishers, many=True)
+
+        logger.info(f"Fetched publishers")
         return Response(serializer.data)
 
     def post(self, request):
         serializer = PublisherDetailSerializer(data=request.data)
+
         if serializer.is_valid():
             serializer.save()
+
+            logger.info(f"Created publisher {serializer.validated_data["name"]}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        logger.warning(
+            f"Failed to create publisher "
+            f"{request.data.get("name", "Unknown")}: {serializer.errors}"
+        )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -40,8 +54,12 @@ class PublisherDetailAPIView(APIView):
         try:
             publisher = Publisher.objects.prefetch_related("book_set").get(pk=pk)
         except Publisher.DoesNotExist:
+            logger.warning(f"Publisher {pk} not found")
             raise NotFound("Publisher not found.")
+
         serializer = PublisherDetailSerializer(publisher)
+
+        logger.info(f"Fetched publisher {publisher.name}")
         return Response(serializer.data)
 
     def patch(self, request, pk):
@@ -51,17 +69,29 @@ class PublisherDetailAPIView(APIView):
         )
         if serializer.is_valid():
             serializer.save()
+
+            logger.info(f"Updated publisher {publisher.name}")
             return Response(serializer.data)
+
+        logger.warning(
+            f"Failed to update publisher {publisher.name}: {serializer.errors}"
+        )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         publisher = self.get_object(pk)
         if publisher.book_set.exists():
+            logger.warning(
+                f"Failed to delete publisher {publisher.name}: "
+                f"they have associated books"
+            )
             return Response(
                 {"error": "Cannot delete publisher with associated books."},
                 status=status.HTTP_409_CONFLICT
             )
         publisher.delete()
+
+        logger.info(f"Deleted publisher {publisher.name}")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -71,13 +101,22 @@ class AuthorListAPIView(APIView):
     def get(self, request):
         authors = Author.objects.all()
         serializer = AuthorListSerializer(authors, many=True)
+        
+        logger.info(f"Fetched authors")
         return Response(serializer.data)
 
     def post(self, request):
         serializer = AuthorDetailSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            
+            logger.info(f"Created author {serializer.validated_data["name"]}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        logger.warning(
+            f"Failed to create author "
+            f"{request.data.get("name", "Unknown")}: {serializer.errors}"
+        )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -91,8 +130,12 @@ class AuthorDetailAPIView(APIView):
         try:
             author = Author.objects.prefetch_related("book_set").get(pk=pk)
         except Author.DoesNotExist:
+            logger.warning(f"Author {pk} not found")
             raise NotFound("Author not found.")
+
         serializer = AuthorDetailSerializer(author)
+        
+        logger.info(f"Fetched author {author.name}")
         return Response(serializer.data)
 
     def patch(self, request, pk):
@@ -102,17 +145,29 @@ class AuthorDetailAPIView(APIView):
         )
         if serializer.is_valid():
             serializer.save()
+            
+            logger.info(f"Updated author {author.name}")
             return Response(serializer.data)
+            
+        logger.warning(
+            f"Failed to update author {author.name}: {serializer.errors}"
+        )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         author = self.get_object(pk)
         if author.book_set.exists():
+            logger.warning(
+                f"Failed to delete author {author.name}: "
+                f"they have associated books"
+            )
             return Response(
                 {"error": "Cannot delete author with associated books."},
                 status=status.HTTP_409_CONFLICT
             )
         author.delete()
+        
+        logger.info(f"Deleted author {author.name}")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -163,13 +218,22 @@ class BookListAPIView(APIView):
             books = books.order_by("-popularity_score")
 
         serializer = BookListSerializer(books, many=True)
+        
+        logger.info(f"Fetched books with params: {request.query_params}")
         return Response(serializer.data)
 
     def post(self, request):
         serializer = BookDetailSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
+            
+            logger.info(f"Created book {serializer.validated_data["title"]}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        logger.warning(
+            f"Failed to create book "
+            f"{request.data.get("title", "Unknown")}: {serializer.errors}"
+        )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -182,6 +246,8 @@ class BookDetailAPIView(APIView):
     def get(self, request, pk):
         book = self.get_object(pk)
         serializer = BookDetailSerializer(book)
+        
+        logger.info(f"Fetched book {book.title}")
         return Response(serializer.data)
 
     def patch(self, request, pk):
@@ -191,15 +257,27 @@ class BookDetailAPIView(APIView):
         )
         if serializer.is_valid():
             serializer.save()
+            
+            logger.info(f"Updated book {book.title}")
             return Response(serializer.data)
+            
+        logger.warning(
+            f"Failed to update book {book.title}: {serializer.errors}"
+        )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk):
         book = self.get_object(pk)
         if CartItem.objects.filter(book=book).exists() or OrderItem.objects.filter(book=book).exists():
+            logger.warning(
+                f"Failed to delete book {book.title}: "
+                f"in active cart or order history"
+            )
             return Response(
                 {"error": "Cannot delete a book that is in an active cart or order history."},
                 status=status.HTTP_409_CONFLICT
             )
         book.delete()
+        
+        logger.info(f"Deleted book {book.title}")
         return Response(status=status.HTTP_204_NO_CONTENT)
