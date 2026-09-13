@@ -1,0 +1,328 @@
+{
+	"info": {
+		"_postman_id": "b1a13e2f-5341-4567-89ab-cdef01234567",
+		"name": "Bookstore API",
+		"description": "Collection for testing the Django Bookstore API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Publishers",
+			"item": [
+				{
+					"name": "Get all Publishers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/publishers/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["publishers", ""]
+						}
+					}
+				},
+				{
+					"name": "Get specific Publisher",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/publishers/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["publishers", "INSERT_UUID_HERE", ""]
+						}
+					}
+				},
+				{
+					"name": "Create Publisher",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"O'Reilly Media\",\n    \"description\": \"Technical books and learning resources.\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/publishers/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["publishers", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Publisher",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"O'Reilly Media Updated\",\n    \"description\": \"Updated description here.\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/publishers/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["publishers", "INSERT_UUID_HERE", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Publisher",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/publishers/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["publishers", "INSERT_UUID_HERE", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Authors",
+			"item": [
+				{
+					"name": "Get all Authors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/authors/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["authors", ""]
+						}
+					}
+				},
+				{
+					"name": "Get specific Author",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/authors/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["authors", "INSERT_UUID_HERE", ""]
+						}
+					}
+				},
+				{
+					"name": "Create Author",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Stephen King\",\n    \"bio\": \"American author of horror and supernatural fiction.\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/authors/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["authors", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Author",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Stephen King\",\n    \"bio\": \"Updated bio.\"\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/authors/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["authors", "INSERT_UUID_HERE", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Author",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/authors/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["authors", "INSERT_UUID_HERE", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Books",
+			"item": [
+				{
+					"name": "Get all Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/books/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["books", ""]
+						}
+					}
+				},
+				{
+					"name": "Get specific Book",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/books/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["books", "INSERT_UUID_HERE", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Filtered and Sorted Books",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/books/?search=the&publisher=Penguin,Harper&genre=Fiction,Horror&ordering=-popularity_score",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["books", ""],
+							"query": [
+								{ "key": "search", "value": "the" },
+								{ "key": "publisher", "value": "Penguin,Harper" },
+								{ "key": "genre", "value": "Fiction,Horror" },
+								{ "key": "ordering", "value": "-popularity_score" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Create Book",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"The Shining\",\n    \"author\": \"INSERT_AUTHOR_UUID_HERE\",\n    \"publisher\": \"INSERT_PUBLISHER_UUID_HERE\",\n    \"genre\": \"Horror\",\n    \"price\": \"19.99\",\n    \"popularity_score\": 95,\n    \"description\": \"A masterpiece of modern horror.\",\n    \"publication_year\": 2015,\n    \"pages\": 387,\n    \"in_stock\": true\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/books/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["books", ""]
+						}
+					}
+				},
+				{
+					"name": "Update Book",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"The Shining (Revised)\",\n    \"author\": \"INSERT_AUTHOR_UUID_HERE\",\n    \"publisher\": \"INSERT_PUBLISHER_UUID_HERE\",\n    \"genre\": \"Horror\",\n    \"price\": \"24.99\",\n    \"popularity_score\": 99,\n    \"description\": \"Updated price and title.\",\n    \"publication_year\": 2015,\n    \"pages\": 387,\n    \"in_stock\": false\n}"
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/books/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["books", "INSERT_UUID_HERE", ""]
+						}
+					}
+				},
+				{
+					"name": "Delete Book",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/books/INSERT_UUID_HERE/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["books", "INSERT_UUID_HERE", ""]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "General",
+			"item": [
+				{
+					"name": "Get About Us Information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/about/",
+							"protocol": "http",
+							"host": ["127", "0", "0", "1"],
+							"port": "8000",
+							"path": ["about", ""]
+						}
+					}
+				}
+			]
+		}
+	]
+}
