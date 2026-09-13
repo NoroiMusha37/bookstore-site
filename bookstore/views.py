@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from bookstore.models import Book, Author, Publisher, CartItem, OrderItem
+from bookstore.permissions import IsAdminUserOrReadOnly
 from bookstore.serializers import (
     PublisherListSerializer, PublisherDetailSerializer,
     AuthorListSerializer, AuthorDetailSerializer,
@@ -14,6 +15,8 @@ from bookstore.serializers import (
 
 
 class PublisherListAPIView(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
+
     def get(self, request):
         publishers = Publisher.objects.all()
         serializer = PublisherListSerializer(publishers, many=True)
@@ -28,6 +31,8 @@ class PublisherListAPIView(APIView):
 
 
 class PublisherDetailAPIView(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
+
     def get_object(self, pk):
         return get_object_or_404(Publisher, pk=pk)
 
@@ -61,6 +66,8 @@ class PublisherDetailAPIView(APIView):
 
 
 class AuthorListAPIView(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
+
     def get(self, request):
         authors = Author.objects.all()
         serializer = AuthorListSerializer(authors, many=True)
@@ -75,6 +82,8 @@ class AuthorListAPIView(APIView):
 
 
 class AuthorDetailAPIView(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
+
     def get_object(self, pk):
         return get_object_or_404(Author, pk=pk)
 
@@ -108,6 +117,8 @@ class AuthorDetailAPIView(APIView):
 
 
 class BookListAPIView(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
+
     VALID_ORDERINGS = {
         "price", "-price", "popularity_score",
         "-popularity_score", "genre", "-genre"
@@ -163,6 +174,8 @@ class BookListAPIView(APIView):
 
 
 class BookDetailAPIView(APIView):
+    permission_classes = [IsAdminUserOrReadOnly]
+
     def get_object(self, pk):
         return get_object_or_404(Book, pk=pk)
 
