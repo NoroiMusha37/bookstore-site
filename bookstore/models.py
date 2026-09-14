@@ -3,6 +3,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.db.models import DecimalField, F, Sum
+from django.core.validators import MinValueValidator
 
 from config import settings
 
@@ -37,8 +38,12 @@ class Book(models.Model):
     author = models.ForeignKey(Author, on_delete=models.PROTECT)
     publisher = models.ForeignKey(Publisher, on_delete=models.PROTECT)
     genre = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    popularity_score = models.IntegerField(default=0)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal("0"))]
+    )
+    popularity_score = models.PositiveIntegerField(default=0)
     description = models.TextField(blank=True, null=True)
     publication_year = models.PositiveIntegerField()
     pages = models.PositiveIntegerField()
