@@ -1,18 +1,22 @@
 import logging
 
+from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from bookstore.models import Book, Author, Publisher, CartItem, OrderItem
+from bookstore.models import Book, Author, Publisher, Cart, CartItem, Order, OrderItem
 from bookstore.permissions import IsAdminUserOrReadOnly
 from bookstore.serializers import (
     PublisherListSerializer, PublisherDetailSerializer,
     AuthorListSerializer, AuthorDetailSerializer,
     BookListSerializer, BookDetailSerializer,
+    CartSerializer, CartItemWriteSerializer, CartItemUpdateSerializer,
+    CartItemReadSerializer, OrderListSerializer, OrderDetailSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -101,7 +105,7 @@ class AuthorListAPIView(APIView):
     def get(self, request):
         authors = Author.objects.all()
         serializer = AuthorListSerializer(authors, many=True)
-        
+
         logger.info(f"Fetched authors")
         return Response(serializer.data)
 
@@ -109,10 +113,10 @@ class AuthorListAPIView(APIView):
         serializer = AuthorDetailSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            
+
             logger.info(f"Created author {serializer.validated_data["name"]}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
+
         logger.warning(
             f"Failed to create author "
             f"{request.data.get("name", "Unknown")}: {serializer.errors}"
@@ -134,7 +138,7 @@ class AuthorDetailAPIView(APIView):
             raise NotFound("Author not found.")
 
         serializer = AuthorDetailSerializer(author)
-        
+
         logger.info(f"Fetched author {author.name}")
         return Response(serializer.data)
 
@@ -145,10 +149,10 @@ class AuthorDetailAPIView(APIView):
         )
         if serializer.is_valid():
             serializer.save()
-            
+
             logger.info(f"Updated author {author.name}")
             return Response(serializer.data)
-            
+
         logger.warning(
             f"Failed to update author {author.name}: {serializer.errors}"
         )
@@ -166,7 +170,7 @@ class AuthorDetailAPIView(APIView):
                 status=status.HTTP_409_CONFLICT
             )
         author.delete()
-        
+
         logger.info(f"Deleted author {author.name}")
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -218,7 +222,7 @@ class BookListAPIView(APIView):
             books = books.order_by("-popularity_score")
 
         serializer = BookListSerializer(books, many=True)
-        
+
         logger.info(f"Fetched books with params: {request.query_params}")
         return Response(serializer.data)
 
@@ -226,10 +230,10 @@ class BookListAPIView(APIView):
         serializer = BookDetailSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            
+
             logger.info(f"Created book {serializer.validated_data["title"]}")
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
+
         logger.warning(
             f"Failed to create book "
             f"{request.data.get("title", "Unknown")}: {serializer.errors}"
@@ -246,7 +250,7 @@ class BookDetailAPIView(APIView):
     def get(self, request, pk):
         book = self.get_object(pk)
         serializer = BookDetailSerializer(book)
-        
+
         logger.info(f"Fetched book {book.title}")
         return Response(serializer.data)
 
@@ -257,10 +261,10 @@ class BookDetailAPIView(APIView):
         )
         if serializer.is_valid():
             serializer.save()
-            
+
             logger.info(f"Updated book {book.title}")
             return Response(serializer.data)
-            
+
         logger.warning(
             f"Failed to update book {book.title}: {serializer.errors}"
         )
@@ -278,6 +282,166 @@ class BookDetailAPIView(APIView):
                 status=status.HTTP_409_CONFLICT
             )
         book.delete()
-        
+
         logger.info(f"Deleted book {book.title}")
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class OrderListAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user).order_by("-created_at")
+        serializer = OrderListSerializer(orders, many=True)
+
+        logger.info(f"User {request.user.username} fetched their orders")
+        return Response(serializer.data)
+
+    def post(self, request):
+        cart = get_object_or_404(Cart, user=request.user)
+        cart_items = cart.items.select_related("book").all()
+
+        if not cart_items.exists():
+            logger.warning(f"User {request.user.username} attempted to checkout an empty cart")
+            return Response(
+                {"error": "Cannot create an order from an empty cart."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        for item in cart_items:
+            if not item.book.in_stock:
+                logger.warning(
+                    f"User {request.user.username} tried to checkout with "
+                    f"out of stock book {item.book.title}"
+                )
+                return Response(
+                    {"error": f"Book '{item.book.title}' is currently out of stock."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        with transaction.atomic():
+            order = Order.objects.create(
+                user=request.user,
+                status=Order.Status.PENDING,
+                total_price=cart.total_price
+            )
+
+            order_items = []
+            for item in cart_items:
+                order_items.append(
+                    OrderItem(
+                        order=order,
+                        book=item.book,
+                        quantity=item.quantity,
+                        unit_price=item.book.price,
+                        item_total=item.item_total
+                    )
+                )
+
+            OrderItem.objects.bulk_create(order_items)
+            cart.items.all().delete()
+
+        serializer = OrderDetailSerializer(order)
+        logger.info(f"User {request.user.username} successfully checked out")
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class OrderDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, pk):
+        order = get_object_or_404(Order, pk=pk, user=request.user)
+        serializer = OrderDetailSerializer(order)
+
+        logger.info(f"User {request.user.username} fetched details for order {pk}")
+        return Response(serializer.data)
+
+
+class CartDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        if created:
+            logger.info(f"Created new cart for user {request.user.username}")
+        serializer = CartSerializer(cart)
+
+        logger.info(f"User {request.user.username} fetched their cart")
+        return Response(serializer.data)
+
+    def delete(self, request):
+        cart = get_object_or_404(Cart, user=request.user)
+        cart.items.all().delete()
+
+        logger.info(f"User {request.user.username} cleared their cart")
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CartItemAddAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        serializer = CartItemWriteSerializer(data=request.data)
+
+        if serializer.is_valid():
+            book = serializer.validated_data["book"]
+
+            if CartItem.objects.filter(cart=cart, book=book).exists():
+                logger.warning(
+                    f"User {request.user.username} tried to add book {book.title} "
+                    f"which is already in the cart"
+                )
+                return Response(
+                    {"error": "This book is already in your cart. Use PATCH to update quantity."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            cart_item = serializer.save(cart=cart)
+
+            logger.info(f"User {request.user.username} added book {book.title} to cart")
+
+            read_serializer = CartItemReadSerializer(cart_item)
+            return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
+        logger.warning(f"User {request.user.username} failed to add to cart: {serializer.errors}")
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CartItemDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, request, book_id):
+        cart = get_object_or_404(Cart, user=request.user)
+        return get_object_or_404(CartItem, cart=cart, book_id=book_id)
+
+    def patch(self, request, book_id):
+        cart_item = self.get_object(request, book_id)
+        serializer = CartItemUpdateSerializer(
+            cart_item, data=request.data, partial=True
+        )
+        if serializer.is_valid():
+            cart_item = serializer.save()
+
+            logger.info(
+                f"User {request.user.username} updated quantity of "
+                f"{cart_item.book.title} to {cart_item.quantity}"
+            )
+
+            read_serializer = CartItemReadSerializer(cart_item)
+            return Response(read_serializer.data)
+
+        logger.warning(
+            f"User {request.user.username} failed to update cart item: "
+            f"{serializer.errors}"
+        )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, book_id):
+        cart_item = self.get_object(request, book_id)
+        book_title = cart_item.book.title
+        cart_item.delete()
+
+        logger.info(f"User {request.user.username} removed {book_title} from cart")
         return Response(status=status.HTTP_204_NO_CONTENT)

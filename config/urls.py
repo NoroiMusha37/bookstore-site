@@ -19,10 +19,22 @@ from django.contrib import admin
 from django.urls import path, include
 
 from accounts.views import UserProfileAPIView
+from bookstore.views import (
+    CartDetailAPIView,
+    CartItemAddAPIView,
+    CartItemDetailAPIView,
+    OrderListAPIView,
+    OrderDetailAPIView,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("bookstore.urls")),
     path("accounts/", include("accounts.urls")),
     path("me/", UserProfileAPIView.as_view(), name="user-profile"),
+    path("me/orders/", OrderListAPIView.as_view(), name="order-list"),
+    path("me/orders/<uuid:pk>/", OrderDetailAPIView.as_view(), name="order-detail"),
+    path("me/cart/", CartDetailAPIView.as_view(), name="cart-detail"),
+    path("me/cart/items/", CartItemAddAPIView.as_view(), name="cart-item-add"),
+    path("me/cart/items/<uuid:book_id>/", CartItemDetailAPIView.as_view(), name="cart-item-detail"),
 ]

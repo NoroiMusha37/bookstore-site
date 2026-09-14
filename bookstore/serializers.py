@@ -97,6 +97,11 @@ class CartItemWriteSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = ["id", "book", "quantity"]
 
+    def validate_book(self, value):
+        if not value.in_stock:
+            raise serializers.ValidationError("This book is currently out of stock.")
+        return value
+
 
 class CartItemUpdateSerializer(serializers.ModelSerializer):
     class Meta:
