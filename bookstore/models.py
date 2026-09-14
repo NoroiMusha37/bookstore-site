@@ -93,7 +93,7 @@ class CartItem(models.Model):
 
     @property
     def item_total(self):
-        return self.quantity + self.book.price
+        return self.quantity * self.book.price
 
 
 class Order(models.Model):
