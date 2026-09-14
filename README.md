@@ -52,12 +52,13 @@ It provides a structured data model and endpoints to handle three core domains:
 
 ### 👤 User Profile
 
-| Endpoint      | Method    | Use                 | Request Params/Body                                                | Status                                                    | Response Body          |
-|---------------|-----------|---------------------|--------------------------------------------------------------------|-----------------------------------------------------------|------------------------|
-| `/me/`        | **GET**   | Get user profile    | None                                                               | `200 OK`, `401 Unauthorized`                              | User Profile object    |
-| `/me/`        | **PATCH** | Update user profile | **Body**: `{ email?, password?, first_name?, last_name?, phone? }` | `200 OK`, `400 Bad Request`, `401 Unauthorized`           | Updated Profile object |
-| `/me/orders/` | **GET**   | Get order history   | None                                                               | `200 OK`, `401 Unauthorized`                              | Array of Order objects |
-| `/me/orders/` | **POST**  | Checkout / Buy cart | None                                                               | `201 Created`, `400 Bad Request`, `401 Unauthorized`      | Created Order object   |
+| Endpoint           | Method    | Use                 | Request Params/Body                                                | Status                                               | Response Body          |
+|--------------------|-----------|---------------------|--------------------------------------------------------------------|------------------------------------------------------|------------------------|
+| `/me/`             | **GET**   | Get user profile    | None                                                               | `200 OK`, `401 Unauthorized`                         | User Profile object    |
+| `/me/`             | **PATCH** | Update user profile | **Body**: `{ email?, password?, first_name?, last_name?, phone? }` | `200 OK`, `400 Bad Request`, `401 Unauthorized`      | Updated Profile object |
+| `/me/orders/`      | **GET**   | Get order history   | None                                                               | `200 OK`, `401 Unauthorized`                         | Array of Order objects |
+| `/me/orders/{id}/` | **GET**   | Get order details   | None                                                               | `200 OK`, `401 Unauthorized`, `404 Not Found`        | Detailed Order object  |
+| `/me/orders/`      | **POST**  | Checkout / Buy cart | None                                                               | `201 Created`, `400 Bad Request`, `401 Unauthorized` | Created Order object   |
 
 ### 🛒 Cart
 
@@ -87,6 +88,8 @@ The backend currently focuses on the catalog management and user authentication 
   * Configured URL routing for all active catalog endpoints.
   * Added JWT-based authentication endpoints (`/accounts/login/`, `/accounts/login/refresh/`).
   * Added secure user registration (`/accounts/register/`) and a `/me/` endpoint to view and update profiles.
+  * Implemented Cart management endpoints (`/me/cart/`, `/me/cart/items/`) to add, update, and remove cart items.
+  * Implemented Order history and checkout endpoints (`/me/orders/`) with safe transactional processing.
 * **Authentication & Permissions**:
   * Configured `djangorestframework-simplejwt` for robust, stateless token-based auth.
   * Catalog endpoints use custom `IsAdminUserOrReadOnly` permissions to allow public viewing but restrict editing to staff.
