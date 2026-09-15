@@ -154,6 +154,27 @@ You can run this project using either `uv` (recommended) or standard `pip`.
 
 ---
 
+## 🧪 Testing
+
+This project uses `pytest` and `pytest-django` for automated testing, covering all core API functionality including catalog management, user authentication, carts, and order processing.
+
+### Running Tests
+
+To run the complete test suite, use `uv run`:
+```bash
+uv run pytest
+```
+
+### Measuring Coverage
+
+To run the test suite and automatically generate a coverage report use:
+```bash
+uv run pytest --cov=bookstore --cov=accounts
+```
+This will output a coverage summary in your terminal, which can be included in your pull request description.
+
+---
+
 ## 🗄️ Database Schema
 
 ![Database Schema](er_diagram.png)
