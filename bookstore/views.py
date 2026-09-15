@@ -178,10 +178,14 @@ class AuthorDetailAPIView(APIView):
 class BookListAPIView(APIView):
     permission_classes = [IsAdminUserOrReadOnly]
 
-    VALID_ORDERINGS = {
-        "price", "-price", "popularity_score",
-        "-popularity_score", "genre", "-genre"
-    }
+    VALID_ORDERINGS = [
+        "popularity_score",
+        "-popularity_score",
+        "price",
+        "-price",
+        "genre",
+        "-genre"
+    ]
 
     def get(self, request):
         books = Book.objects.select_related("author", "publisher")
