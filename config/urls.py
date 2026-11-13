@@ -16,8 +16,33 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+
+from accounts.views import UserProfileAPIView
+from bookstore.views import (
+    CartDetailAPIView,
+    CartItemAddAPIView,
+    CartItemDetailAPIView,
+    OrderListAPIView,
+    OrderDetailAPIView,
+)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+    path("", include("bookstore.urls")),
+    path("accounts/", include("accounts.urls")),
+    path("me/", UserProfileAPIView.as_view(), name="user-profile"),
+    path("me/orders/", OrderListAPIView.as_view(), name="order-list"),
+    path("me/orders/<uuid:pk>/", OrderDetailAPIView.as_view(), name="order-detail"),
+    path("me/cart/", CartDetailAPIView.as_view(), name="cart-detail"),
+    path("me/cart/items/", CartItemAddAPIView.as_view(), name="cart-item-add"),
+    path("me/cart/items/<uuid:book_id>/", CartItemDetailAPIView.as_view(), name="cart-item-detail"),
 ]
