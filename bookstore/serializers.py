@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field, inline_serializer
 from rest_framework import serializers
 
 from bookstore.models import (
@@ -8,6 +9,20 @@ from bookstore.models import (
     CartItem,
     Order,
     OrderItem
+)
+
+
+# OpenAPI shape of the nested "books" list in author/publisher details
+BOOK_SHORT_SCHEMA = inline_serializer(
+    "BookShort",
+    {
+        "id": serializers.UUIDField(),
+        "title": serializers.CharField(),
+        "genre": serializers.CharField(),
+        "price": serializers.DecimalField(max_digits=10, decimal_places=2),
+        "popularity_score": serializers.IntegerField(),
+    },
+    many=True,
 )
 
 
@@ -24,6 +39,7 @@ class PublisherDetailSerializer(serializers.ModelSerializer):
         model = Publisher
         fields = ["id", "name", "description", "books"]
 
+    @extend_schema_field(BOOK_SHORT_SCHEMA)
     def get_books(self, obj):
         return [
             {
@@ -49,6 +65,7 @@ class AuthorDetailSerializer(serializers.ModelSerializer):
         model = Author
         fields = ["id", "name", "bio", "books"]
 
+    @extend_schema_field(BOOK_SHORT_SCHEMA)
     def get_books(self, obj):
         return [
             {
