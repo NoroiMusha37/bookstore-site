@@ -112,6 +112,30 @@ The backend currently focuses on the catalog management and user authentication 
 
 You can run this project using either `uv` (recommended) or standard `pip`.
 
+### Environment Variables
+
+Secret and environment-specific settings are read from a `.env` file in the project root (loaded with `python-decouple`). This file is in `.gitignore` and must never be committed.
+
+Copy the template and fill in your own values:
+```bash
+# Windows (PowerShell)
+Copy-Item .env.example .env
+
+# macOS/Linux
+cp .env.example .env
+```
+
+| Variable        | Required | Description                                          | Example                 |
+|-----------------|----------|------------------------------------------------------|-------------------------|
+| `SECRET_KEY`    | Yes      | Django secret key used for signing (sessions, JWT)   | random 50-char string   |
+| `DEBUG`         | No       | Debug mode; defaults to `False`                      | `True`                  |
+| `ALLOWED_HOSTS` | No       | Comma-separated hosts the server answers to          | `localhost,127.0.0.1`   |
+
+Generate a new secret key with:
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
 ### Using `uv` (Recommended)
 
 1. **Sync dependencies and create a virtual environment**:
@@ -139,9 +163,9 @@ You can run this project using either `uv` (recommended) or standard `pip`.
    python -m venv .venv
    source .venv/bin/activate
    ```
-2. **Install dependencies**:
+2. **Install dependencies** (includes the test tools):
    ```bash
-   pip install .
+   pip install -r requirements.txt
    ```
 3. **Apply migrations**:
    ```bash
@@ -160,9 +184,13 @@ This project uses `pytest` and `pytest-django` for automated testing, covering a
 
 ### Running Tests
 
-To run the complete test suite, use `uv run`:
+Make sure `.env` exists (see [Environment Variables](#environment-variables)), then run the complete test suite:
 ```bash
+# uv
 uv run pytest
+
+# pip (inside the activated virtual environment)
+pytest
 ```
 
 ### Measuring Coverage
@@ -170,8 +198,27 @@ uv run pytest
 To run the test suite and automatically generate a coverage report use:
 ```bash
 uv run pytest --cov=bookstore --cov=accounts
+# or, with pip:
+pytest --cov=bookstore --cov=accounts
 ```
 This will output a coverage summary in your terminal, which can be included in your pull request description.
+
+---
+
+## 📘 API Documentation
+
+Interactive documentation is generated automatically from the code with `drf-spectacular` (OpenAPI 3). With the development server running:
+
+* **Swagger UI**: [http://127.0.0.1:8000/api/docs/](http://127.0.0.1:8000/api/docs/)
+* **ReDoc**: [http://127.0.0.1:8000/api/redoc/](http://127.0.0.1:8000/api/redoc/)
+* **OpenAPI schema (YAML)**: [http://127.0.0.1:8000/api/schema/](http://127.0.0.1:8000/api/schema/)
+
+To try protected endpoints in Swagger UI, get a token from `POST /accounts/login/`, click **Authorize** and paste the `access` token.
+
+The schema can also be saved to a file without running the server:
+```bash
+uv run python manage.py spectacular --file schema.yml
+```
 
 ---
 
